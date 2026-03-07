@@ -139,3 +139,5 @@ A_CounterNot(counter,number)
 A_JumpIfCounterEquals(state,counter,number)
 A_JumpIfCounterLessThan(state,counter,number)
 A_JumpIfCounterGreaterThan(state,counter,number)
+
+A_SelfRaise
