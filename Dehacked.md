@@ -4,15 +4,31 @@
 
 ### Weapon Code Pointers
 
-- **A_TracerSpray(hhihvhijhbvhjjhbhjhvh)**
-  -  bbbbbbadsfdf
+- **A_TracerSpray(maxangle,damagebase,spraycount,particletype,hitscantype,hitscanflags,damagedice,damageoffset,angleoffset,flags,range,damagerecalc)**
+  -  `maxangle (fixed)`: Horizontal spread (degrees, in fixed point). If an input of 90 degrees is provided, the range is 45 degrees left to 45 degrees right.
+  -  `damagebase (int)`: Flat damage to add on top of random damage.
+  -  `spraycount (int)`: Amount of hitscan tracers to fire.
+  -  `particletype (int)`: Thing ID of thing that should be spawned on top of target.
+  -  `hitscantype (int)`: Specified type of hitscan attack.
+  -  `hitscanflags (int)`: Specified flags for hitscan attack.
+  -  `damagedice (int)`: Maximum times to multiply attack damage by.
+  -  `damageoffset (int)`: Amount of damage to be multiplied by damagedice.
+  -  `angleoffset (int)`: Additional rotation to hitscan attack.
+  -  `flags (int)`: Flags, see below.
+  -  `range (fixed)`: Maximum distance, in map units, that attack can reach.
+  -  `damagerecalc (int)`: Repeats random damage calculations this many times. (kind of stupid but it's what the bfg does, 15 times, so i gotta add it...)
+ 
+    **Flags**
+  - `FLAG47_SPRAYFROMOWNER (1)`: Fires hitscan in the direction that the thing that shot the projectile is facing, instead of the projectile itself.
+  - `FLAG47_SPRAYSMART (2)`: Performs additional checks to avoid narrowly missing targets. Useful for low spraycounts or high maxangles.
+  - `FLAG47_SPRAYRANDOM (4)`: Instead of tracers being equally distanced, use the same RNG algorithm as regular bullet attacks for deciding angle. 
 
 - **A_PlayerThrust(angle,velocity,pitch,flags,damage)**
   -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
   -  `velocity (fixed)`: Velocity, in direction of angle.
   -  `pitch (fixed)`: Pitch (degrees), relative to cal
   -  `flags (int)`: Flags, see below.
-  -  `damage (int)`: Impact Damage, see below.
+  -  `damage (int)`: Impact damage when colliding with things, like lost souls.
 
    **Flags**
   - `FLAG47_THRUSTENEMY (1)`: Instead of thrusting the player, the monster that the player aims at is thrust.
@@ -35,20 +51,24 @@
    **Flags**
   - `FLAG47_ABSOLUTEXYZ (1)`: The code pointer ignore the angle the monster is facing and instead uses the map's coordinates
   - `FLAG47_OVERRIDETARGET (2)`: Instead overrides the target's momentum
+ 
+
+
+    **NOTE: The key difference is that MomentumOverride replaces the thing's speed, instead of adding to it, like Thrust does.**
 
   
 - **A_WeaponMeleeAttack47(angle,xmo,ymo,zmo,flags)**
-  -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
-  -  `xmo (fixed)`: X (forward/back) velocity
-  -  `ymo (fixed)`: Y (left/right) velocity
+  -  `damagebase (int)`: Angle (degrees), relative to calling actor's angle
+  -  `damagedice (int)`: X (forward/back) velocity
+  -  `damageoffset (fixed)`: Y (left/right) velocity
   -  `zmo (fixed)`: Z (up/down) velocity
   -  `flags (int)`: Flags, see below.
 
   
    **Flags**
-  - `FLAG47_ABSOLUTEXYZ (1)`: The code pointer ignore the angle the monster is facing and instead uses the map's coordinates
-  - `FLAG47_OVERRIDETARGET (2)`: Instead overrides the target's momentum
-
+  - `FLAG47_MELEENORANDOMANGLE (1)`: Disables random attack angle.
+  - `FLAG47_MELEENOTURN (2)`: Player does not turn to face their target after hitting them.
+  - `FLAG47_MELEECHECKONLY (4)`: No attack is performed, instead the game checks if there's any enemies in range, before adding them as a target and jumping to the hitstate.
 
 ### Actor Code Pointers
 - **A_MonsterThrust(angle,velocity,pitch,flags,damage)**
@@ -110,9 +130,10 @@ A_CheckAmmoOfType(state,amount,type)
 A_WeaponOffset(x,y,relative)
 maybe add scaling control? haven't looked into weapon display code too much yet so i dunno how feasible it is.
 
-A_PlaySoundExt(sound,global,looping,volume,pitch,attenuation)
+A_PlaySoundExt(sound,global,looping,volume,pitch,nooverride,attenuation)
+no override means that if this thing is already playing a sound, it won't start a new one
 
-A_WeaponSoundExt(sound,global,looping,volume,pitch)
+A_WeaponSoundExt(sound,global,looping,volume,nooverride,pitch)
 maybe add option for seperate channel but isn't that already possible via spawning a thing to play the sound globally
 
 A_PlayMusic(music,singleplay)
@@ -140,4 +161,13 @@ A_JumpIfCounterEquals(state,counter,number)
 A_JumpIfCounterLessThan(state,counter,number)
 A_JumpIfCounterGreaterThan(state,counter,number)
 
+i want to add Sin, Cos, Tan stuff for counters but not certain how to handle it?
+
+doom's trigonometric stuff is handled kinda weirdly
+
+let counters add damage dealt, perhaps through hitscan flags?
+
 A_SelfRaise
+
++PARTICLE - thing can't collide with other things but enters death state upon touching walls
++THINGMISSILE - needs a better name but thing enters death state only when colliding with other things, not walls
