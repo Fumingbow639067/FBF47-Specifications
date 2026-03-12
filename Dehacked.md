@@ -2,6 +2,10 @@
 
 ## Currently Added
 
+### Thing Flags
+  - **SPEEDY** - Performs additional movement checks to prevent noclipping and bypasses the MAXMOVE limit.
+  - **NOTICOFFSET** - Disables random tic offsets on spawn and death frames.
+
 ### Weapon Code Pointers
 
 - **A_TracerSpray(maxangle,damagebase,spraycount,particletype,hitscantype,hitscanflags,damagedice,damageoffset,angleoffset,flags,range,damagerecalc)**
@@ -105,10 +109,19 @@
 
 ## Planned Features
 
+i seen referenced Hitscan flags and types? What are those? i think it would be cool to add different types to attacks to give them custom properties, such as modders using Type 1 for fire themed attacks, then adding an ice enemy that takes double damage from said attack type or enemies that are immune to fire damage. also possibility to add custom death states for specific attack types. as for the flags, i think we should have settings for weapons to use to control these damage types like saying it should ignore custom death states or ignore immunities, etc, not fully sure what to do yet but added it as future-proofing so that if you lot come up with ideas on how to use them, i can add them.
+
+hitscangroup, like mbf21's projectile and infighting and splash groups, but for hitscan attacks.
+
+counters, these are just numbers that can be stored in things, you can do math with them and store data and then use A_JumpIfCounter... to jump to a certain state based on that number or maybe set damage values to equal counter values 
+
 masterprojectile flag to be able to harm things of the same projectile group
+masterhitscan flag to be able to harm things of the same hitscan group
+mastersplash flag to be able to harm things of the same splash group
+masterinfighting flag to be able to infight with things of the same infighting group? this would mean for example hell knights getting angry at barons, but barons not retaliating.
 
 A_JumpIfTrue(state,type)
-onground, moveforward, movebackward, moveleft, moveright,
+onground, moveforward, movebackward, moveleft, moveright, need more ideas for general stuff that can be on or off
 
 A_SwapWeaponTo(weapon,backup)
 
@@ -145,6 +158,11 @@ startmap is the first map to check from, endmap the last to check for people who
 A_RandomJumpFromList(state1, chance1, state2, chance2, state3, chace3...)
 i'd have to check how many args are possible to add, either 32 or 64 i think?
 
+A_SetThingAttribute(attribute,value)
+what's a thing attribute? stuff like health, damage, mass, radius, height, spawn state, death state, etc. this code pointer will let you change these values on the fly!
+also should add a new thing attribute called maxhealth, so that healing code pointers know not to go any higher than that value because currently doom does not give a flying fuck and will let you give zombiemen 24000/20 health
+
+A_CounterSet(counter,number)
 A_CounterAdd(counter,number)
 A_CounterSubtract(counter,number)
 A_CounterMultiply(counter,number) so you want me to mulcify it?
@@ -166,8 +184,15 @@ i want to add Sin, Cos, Tan stuff for counters but not certain how to handle it?
 doom's trigonometric stuff is handled kinda weirdly
 
 let counters add damage dealt, perhaps through hitscan flags?
+also counters should be able to get distances and coordinates and momentum values and yadda yadda. as always, leave suggestions!
+
+
 
 A_SelfRaise
 
 +PARTICLE - thing can't collide with other things but enters death state upon touching walls
 +THINGMISSILE - needs a better name but thing enters death state only when colliding with other things, not walls
++COUNTSECRET - thing counts as a secret, if it's an item then it adds to secret count when picked up, if living it adds to secret count when killed. probably will be a UDB flag so it can be added while mapping instead of being dehacked only.
+
+
+Mapping specs coming sometime soon hopefully, but will require deeper discussion! Nodebuilders currently only design maps to store 16 bit values for line actions, line flags, sector actions and sector flags so we will actually have limitations here. However, we can be much more free in a UDMF-Lite extension that comes after, designed to greatly extend mapping possibilities while simplifying the process greatly from UDMF to make it more manageable.
