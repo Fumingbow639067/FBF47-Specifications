@@ -5,6 +5,14 @@
 ### Thing Flags
   - **SPEEDY** - Performs additional movement checks to prevent noclipping and bypasses the MAXMOVE limit.
   - **NOTICOFFSET** - Disables random tic offsets on spawn and death frames.
+  - **IMPACT** - Internal, enemy deals damage upon hitting another enemy (like SKULLFLY)
+  - **IMPACTRIP** - Internal, if enemy is using IMPACT, let it pass through enemies like a ripper projectile.
+  - **SPRAYREMEMBER** - Internal, used to track when an enemy has been hit by a TracerSpray tracer
+  - **SPRAYPIERCED** - Internal, used to track when an enemy has been pierced by a TracerSpray tracer
+  - **INFINITEITEM** - Item does not despawn when picked up
+  - **ALWAYSPICKUP** - Item can be picked up even if ammo/health/armour is maxed out.
+
+    It is not advised to use internal flags because they may be buggy and will often be toggled on/off by the game itself, regardless of what you do with A_AddFlags / A_RemoveFlags so can not be relied on to stay consistent.
 
 ### Weapon Code Pointers
 
@@ -201,6 +209,16 @@ A_CounterXOr(counter,number)
 
 A_CounterNot(counter,number)
 
+A_CounterSetToAttribute(counter, attribute)
+
+A_CounterSetToSpeed(counter,flags)
+- USEXY : Use speed from X and Y axis
+- USEZ : Use speed from Z axis
+- ABSOLUTE : Use absolute values instead of calculating values from player direction
+- UNSIGNED : Convert negative values to positive values in calculation
+- TARGETSPEED : Use speed from target instead. If called by player, call P_AimLineAttack to find linetarget, if none available, do nothing.
+- TRACERSPEED : Use speed from tracer instead.
+
 
 
 A_JumpIfCounterEquals(state,counter,number)
@@ -221,11 +239,80 @@ also counters should be able to get distances and coordinates and momentum value
 
 A_SelfRaise
 
+A_HealRaiseExt(healstate,sound,raisestate,health,flags)
+- IGNOREFLAG : Ignores whether thing has +NOTRESURRECTABLE
+- IGNOREDURATION : Ignores duration of tic that enemy is on (vanilla can only resurrect if it's -1 duration)
+- HEALABSOLUTE : Instead of using "health" as a percent of total health, heal by the specific integer.
+- USEMAXHEALTH : Instead of checking for enemy's "Spawn Health" value, check for it's "Max Health" instead
+
 +PARTICLE - thing can't collide with other things but enters death state upon touching walls
 
 +THINGMISSILE - needs a better name but thing enters death state only when colliding with other things, not walls
 
 +COUNTSECRET - thing counts as a secret, if it's an item then it adds to secret count when picked up, if living it adds to secret count when killed. probably will be a UDB flag so it can be added while mapping instead of being dehacked only.
+
++NOTRESURRECTABLE - can't be resurrected, even if it has a resurrect state.
+
+
+
+### Powerups
+
+Damage Scale (like Quake Quads)
+
+Defence Scale (seperate defence from armour, timed)
+
+Speed Scale (changes player movement speed)
+
+Friction Scale (Changes player friction)
+
+Gravity Scale (Changes player gravity)
+
+Defense To Damage Type (Damage Types System, Splash Damage, Projectile / Hitscan / Melee, set to 100% for Immunity (Note to self: if full defence then prevent pain sound/state)
+
+Visibility Distance (How far enemies can see you from, also perhaps add time/random system so they can see you after enough time has passed with you in front of them?)
+
+Attack Chance (Change how likely enemies are to attack you, also add distance scaling options)
+
+Enemy Accuracy (Change how accurate other enemies are)
+
+Player Accuracy (Change how accurate your own attacks are)
+
+Friend Powerup? (Makes enemies peaceful towards you?)
+
+Infinite Ammo (i dont really know about adding full scaling to this, most attacks just use 1 ammo but i should do it for completeness, the question is how to handle the rounding...)
+
+Wall Climbing? (Would probably require reuse of flying code, might be awkward to add for having to disable gravity temporarily... just add check in P_SlideMove segment i guess)
+
+Flying (Already mentioned gravity but one that allows players to move freely would be good, might be freelook/jumping exclusive though due to how it would function)
+
+Size Control (Change hitbox + camera size, will be awkward accounting for unshrinking in small areas)
+
+Health Regeneration (heal by X amount every Y tics)
+
+Time Scaling (Change game speed? perhaps add seperate thing for changing enemy timing because tic rate changing has it's jank, do by changing enemy movement to scale by X, change tic duration to scale by X, would be awkward and annoying i imagine, maybe need scrapped...)
+
+Touchy Powerup (Kill enemies you touch, maybe say "If enemy closer than X, kill/damage by Y. If X = 0, use hitbox instead.)
+
+Time Freeze (Far less jank and easier than Time Scaling, just apply FREEZE to level, maybe make it togglable between Freeze Level vs Freeze Enemies...)
+
+Extra Backpack (like backpack but with finer control over how much extra space and also can stack with other custom backpacks)
+
+Lighting Control (256 and higher will be identical to fullbright)
+
+All powerups will have duration control. set to INT_MAX to be effectively infinite, like Berzerk (2147483647 tics)
+
+Powerups will have Palette control, to set it to use specific palette pages or lists of palette pages (like berzerk using a few red shades), will have seperate duration control for palettes.
+
+All powerup values can be set to negative numbers, to allow for finer control.
+
+Perhaps add powerup-like system for enemies, like for poison debuffs and stuff...
+
+- A_JumpIfPowerup(state,powerup)
+- A_GivePowerup(powerup)
+- A_TakePowerup(powerup)
+
+There should be flags to ignore powerup effects, like enemies that stay active when level is frozen, enemies that can bypass invulnerability, enemies that can ignore partial invis (so it isn't a powerdown to projectile enemies !!!)
+
 
 
 Mapping specs coming sometime soon hopefully, but will require deeper discussion! Nodebuilders currently only design maps to store 16 bit values for line actions, line flags, sector actions and sector flags so we will actually have limitations here. However, we can be much more free in a UDMF-Lite extension that comes after, designed to greatly extend mapping possibilities while simplifying the process greatly from UDMF to make it more manageable.
