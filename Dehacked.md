@@ -17,6 +17,8 @@
 ### Weapon Code Pointers
 
 - **A_TracerSpray(maxangle,damagebase,spraycount,particletype,hitscantype,hitscanflags,damagedice,damageoffset,angleoffset,flags,range,damagerecalc)**
+  - Parameterized A_BFGSpray.
+  - Args:
   -  `maxangle (fixed)`: Horizontal spread (degrees, in fixed point). If an input of 90 degrees is provided, the range is 45 degrees left to 45 degrees right.
   -  `damagebase (int)`: Flat damage to add on top of random damage.
   -  `spraycount (int)`: Amount of hitscan tracers to fire.
@@ -36,6 +38,8 @@
   - `FLAG47_SPRAYRANDOM (4)`: Instead of tracers being equally distanced, use the same RNG algorithm as regular bullet attacks for deciding angle. 
 
 - **A_PlayerThrust(angle,velocity,pitch,flags,damage)**
+  - Launches the player with the following desired velocity.
+  - Args:
   -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
   -  `velocity (fixed)`: Velocity, in direction of angle.
   -  `pitch (fixed)`: Pitch (degrees), relative to cal
@@ -54,6 +58,8 @@
   - `FLAG47_THRUSTPROJECTILE (256)`: Skips all checks for whether the thing is a projectile.
 
 - **A_PlayerMomentumOverride(angle,xmo,ymo,zmo,flags)**
+  - Replaces the player's current momentum values with the following desired values.
+  - Args:
   -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
   -  `xmo (fixed)`: X (forward/back) velocity
   -  `ymo (fixed)`: Y (left/right) velocity
@@ -70,6 +76,8 @@
 
   
 - **A_WeaponMeleeAttack47(angle,xmo,ymo,zmo,flags)**
+  - Further parameterized A_WeaponMeleeAttack.
+  - Args:
   -  `damagebase (int)`: Angle (degrees), relative to calling actor's angle
   -  `damagedice (int)`: X (forward/back) velocity
   -  `damageoffset (fixed)`: Y (left/right) velocity
@@ -84,6 +92,8 @@
 
 ### Actor Code Pointers
 - **A_MonsterThrust(angle,velocity,pitch,flags,damage)**
+  - Launches the calling actor with the following desired velocity.
+  - Args:
   -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
   -  `velocity (fixed)`: Velocity, in direction of angle.
   -  `pitch (fixed)`: Pitch (degrees), relative to cal
@@ -99,7 +109,10 @@
   - `FLAG47_THRUSTRIP (32)`: Causes thrust thing to pass through solid objects like a ripper projectile.
   - `FLAG47_THRUSTNOAIM (64)`: Doesn't call A_FaceTarget and instead just aims in the current direction.
   - `FLAG47_THRUSTFROMENEMY (128)`: If enabled, the thrust target/tracer will be thrust in the direction that the target/tracer is facing, instead of from the calling actor.
+
 - **A_MonsterMomentumOverride(angle,xmo,ymo,zmo,flags)**
+  - Replaces the actor's current momentum values with the following desired values.
+  - Args:
   -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
   -  `xmo (fixed)`: X (forward/back) velocity
   -  `ymo (fixed)`: Y (left/right) velocity
@@ -109,11 +122,100 @@
   - `FLAG47_ABSOLUTEXYZ (1)`: The code pointer ignore the angle the monster is facing and instead uses the map's coordinates
   - `FLAG47_OVERRIDETARGET (2)`: Instead overrides the target's momentum
 
+- **A_SpawnOnTarget(angle,x_ofs,y_ofs,z_ofs,x_vel,y_vel,z_vel,flags)**
+  - Parameterized A_VileTarget. Spawns a thing in front of the actor's target and set's the spawned thing's tracer to be that target. Does not cause actor to face target.
+  - Args:
+    - `type (uint)`: Type (dehnum) of actor to spawn
+    - `angle (fixed)`: Angle (degrees), relative to calling actor's angle
+    - `x_ofs (fixed)`: X (forward/back) spawn position offset
+    - `y_ofs (fixed)`: Y (left/right) spawn position offset
+    - `z_ofs (fixed)`: Z (up/down) spawn position offset
+    - `x_vel (fixed)`: X (forward/back) velocity
+    - `y_vel (fixed)`: Y (left/right) velocity
+    - `z_vel (fixed)`: Z (up/down) velocity
+    - `flags (int)`: Flags, see below.
+
+   **Flags**
+  - `FLAG47_SPAWNOWNEDBYENEMY (1)`: Sets the spawned things "owner" (target) to be the enemy that the actor is targeting.
+  - `FLAG47_SPAWNONSELF (2)`: Instead of spawning the desired thing on the actor's target, it instead spawns directly on the actor itself.
+  - `FLAG47_SPAWNNOTARGET (4)`: Sets the spawned thing's target to be blank.
+  - `FLAG47_SPAWNNOTRACER (8)`: Sets the spawned thing's tracer to be blank.
+  - `FLAG47_SPAWNNOLOCKON (16)`: Causes the spawned thing to not call A_Fire when spawned.
+
+- **A_BlastAttack(angle,xmo,ymo,zmo,flags)**
+  - Parameterized A_VileAttack. If target is in line of sight, deal damage to target, launche target upwards and spawn an explosion in front of the target. 
+  - Args:
+    - `velocity (fixed)`: Z (up/down) velocity
+    - `damage (int)`: Damage to deal to target
+    - `massoverride (int)`: If non-zero, replaces the actor's mass with this value when calculating momentum to apply.
+    - `blastdamage (int)`: Blast damage of explosion
+    - `blastradius (int)`: Radius of explosion
+    - `sound (int)`: Id of sound effect to play from attack. If 0, does nothing.
+    -  `flags (int)`: Flags, see below.
+
+   **Flags**
+  - `FLAG47_DONTFACETARGET (1)`: Actor does not call A_FaceTarget.
+  - `FLAG47_DONTCHECKLOS (2)`: Actor does not check for line of sight before attacking, instead always attacking successfully.
+  - `FLAG47_THINGBLOCKLOS (4)`: Causes line of sight to be blocked if other things are in the way, instead of only being blocked by walls. 
+  - `FLAG47_BLASTFROMTARGET (8)`: Sets the explosion to spawn directly on the target, by default the source of the explosion is the actor's tracer (the flame spawned by A_VileTarget, or the thing spawned by A_SpawnOnTarget).
+
+- **A_SpawnMonster(angle,x_ofs,y_ofs,z_ofs,x_vel,y_vel,z_vel,flags)**
+  - Parameterized A_PainAttack.
+  - Args:
+    - `type (uint)`: Type (dehnum) of actor to spawn
+    - `angle (fixed)`: Angle (degrees), relative to calling actor's angle
+    - `x_ofs (fixed)`: X (forward/back) spawn position offset
+    - `y_ofs (fixed)`: Y (left/right) spawn position offset
+    - `z_ofs (fixed)`: Z (up/down) spawn position offset
+    - `x_vel (fixed)`: X (forward/back) velocity
+    - `y_vel (fixed)`: Y (left/right) velocity
+    - `z_vel (fixed)`: Z (up/down) velocity
+    - `sound (int)`: Id of sound effect to play from spawned monster. Default is spawned monster's attack sound.
+    - `flags (int)`: Flags, see below.
+
+   **Flags**
+  - `FLAG47_SPAWNNOIMPACT (1)`: Spawned thing will not do impact damage.
+  - `FLAG47_SPAWNNOFACETARGET (2)`: Actor will not call A_FaceTarget.
+  - `FLAG47_SPAWNTHROUGHWALLS (4)`: Ignores checks to see if a wall is between the actor and the location of the spawned thing, which was default behaviour in the original game, but not Boom and it's derivatives.
+  - `FLAG47_SPAWNRIP (8)`: Spawned thing is considered a ripper.
+ 
+### Counters
+
+Counters are arbitrary values that can be stored as part of a thing's properties. Counters do not do anything on their own, but can be read by codepointers to change values or decide when to jump to another state. 
+
+The modder may define as many counters as they wish.
+
+Counters also have the following settings that can be changed.
+
+- `Counter Min`: The minimum value a counter can be. Default behaviour is to clamp the number so that it can't reach any lower.
+- `Counter Max`: The maximum value a counter can be. Default behaviour is to clamp the number so that it can't reach any higher.
+- `Counter Flags`:
+  - `FLAG47_UNDERFLOW (1)`: When attempting to reach a value below Counter Min, it instead wraps back around to Counter Max and continues to count down from there.
+  - `FLAG47_OVERFLOW (2)`: When attempting to reach a value above Counter Max, it instead wraps back around to Counter Min and continues to count up from there.
+
  
 ### Miscellaneous
-- **Player View Height**: Change the height of the player camera, has no impact on hitbox
-- **Step Height**: Change the maximum sector height which the player and other things can traverse upwards
-
+- **Player View Height**: Change the height of the player camera, has no impact on hitbox. Measured in map units, default is 41
+- **Step Height**: Change the maximum sector height which the player and other things can traverse upwards. Measured in map units, default is 24
+- **Player Speed Multiplier**: Multiplies the player's movement speed by this amount. Fixed Point value, default is 65536 (1.0)
+- **Player Friction Multiplier**: Multiplies the amount of friction the player receives by this amount. This value is overridden by Boom's Friction floors. Fixed Point value, default is 59392 (0.90625)
+- **Max Damage Screen Timer**: Changes the maximum duration that the red screen effect from taking damage can last for to this amount. Measured in tics, default is 100
+- **Max Item Screen Timer**: Changes the maximum duration that the yellow screen effect from picking up items can last for to this amount. Measured in tics, default is infinite (-1)
+- **Vertical Hitscan Offset**: Offsets the source of the player's hitscan attacks vertically by this amount, which usually originate from 36 map units from the position the player is standing. Measured in map units, default is 0
+- **Horizontal Hitscan Offset**: Offsets the source of the player's hitscan attacks horizontally by this amount. Measured in map units, default is 0
+- **Air Control**: Changes how much control the player has to move while midair. Measured in fixed point, default is 0
+- **Jump Delay**: Number of tics the player must stand on the ground for before being able to jump again. Default is 7
+- **Coyote Time**: How many tics the player is still allowed to jump for after walking off a platform. Default is 0
+- **Player Bob Scaling**: Multiplies how far the player's head bobs up and down while moving, seperate from the weapon bobbing animation. Measured in fixed point, default is 65536 (1.0)
+- **Maximum Player Bob**: The maximum distance the player's head can bob up and down by. Measured in fixed point map units, default is 16
+- **Weapon Bob Horizontal Scaling**: Multiplies how far the player's weapon bobs side to side while moving. Measured in fixed point, default is 65536 (1.0)
+- **Weapon Bob Vertical Scaling**: Multiplies how far the player's weapon bobs up and down while moving. Measured in fixed point, default is 65536 (1.0)
+- **Maximum Horizontal Weapon Bob**: The maximum distance the player's head can bob sideways by. Measured in pixels, default is infinite
+- **Maximum Vertical Weapon Bob**: The maximum distance the player's head can bob up and down by. Measured in pixels, default is infinite
+- **Player Bob Speed**: Multiplies how fast the player's head bobs up and down while moving, seperate from the weapon bobbing animation. Measured in fixed point, default is 65536 (1.0)
+- **Weapon Bob Speed**: Multiplies how fast the player's weapon bobs while moving. Measured in fixed point, default is 65536 (1.0)
+- **Autoaim Range**: How far player's autoaim is still able to work, if an enemy is further than this distance then autoaim will not account for them. Measured in fixed point map units, default is 67108864 (1024.0)
+- **Hitscan Range**: Default range for player hitscan attacks to travel, if an enemy is further than this distance then they will not be hit. Measured in fixed point map units, default is 134217728 (2048.0)
 
 ## Planned Features
 
