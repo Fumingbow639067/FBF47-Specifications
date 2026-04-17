@@ -11,12 +11,14 @@
   - **SPRAYPIERCED** - Internal, used to track when an enemy has been pierced by a TracerSpray tracer
   - **INFINITEITEM** - Item does not despawn when picked up
   - **ALWAYSPICKUP** - Item can be picked up even if ammo/health/armour is maxed out.
+  - **NOMOVECOUNTRESET** - Thing's "movecount" does not reset upon bumping into a wall. "movecount" is the timer that prevents enemies from firing.
+  - **TOUCHYDAMAGE** - Thing deals damage upon contact, but does not enter it's death state.
 
     It is not advised to use internal flags because they may be buggy and will often be toggled on/off by the game itself, regardless of what you do with A_AddFlags / A_RemoveFlags so can not be relied on to stay consistent.
 
 ### Weapon Code Pointers
 
-- **A_TracerSpray(maxangle,damagebase,spraycount,particletype,hitscantype,hitscanflags,damagedice,damageoffset,angleoffset,flags,range,damagerecalc)**
+- **A_TracerSpray(maxangle,damagebase,spraycount,particletype,hitscantype,hitscanflags,damagedice,damageoffset,angleoffset,flags,range,damagerecalc,maxpierces)**
   - Parameterized A_BFGSpray.
   - Args:
   -  `maxangle (fixed)`: Horizontal spread (degrees, in fixed point). If an input of 90 degrees is provided, the range is 45 degrees left to 45 degrees right.
@@ -31,18 +33,23 @@
   -  `flags (int)`: Flags, see below.
   -  `range (fixed)`: Maximum distance, in map units, that attack can reach.
   -  `damagerecalc (int)`: Repeats random damage calculations this many times. (kind of stupid but it's what the bfg does, 15 times, so i gotta add it...)
+  -  `maxpierces (int)`: Maximum number of enemies that can be pierced through.
  
     **Flags**
   - `FLAG47_SPRAYFROMOWNER (1)`: Fires hitscan in the direction that the thing that shot the projectile is facing, instead of the projectile itself.
   - `FLAG47_SPRAYSMART (2)`: Performs additional checks to avoid narrowly missing targets. Useful for low spraycounts or high maxangles.
-  - `FLAG47_SPRAYRANDOM (4)`: Instead of tracers being equally distanced, use the same RNG algorithm as regular bullet attacks for deciding angle. 
+  - `FLAG47_SPRAYRANDOM (4)`: Instead of tracers being equally distanced, use the same RNG algorithm as regular bullet attacks for deciding angle.
+  - `FLAG47_SPRAYFROMPROJECTILE (8)`: Instead of firing hitscan from the thing that fired the projectile, fire hitscan from the projectile directly.
+  - `FLAG47_SPRAYNOREPEAT (16)`: Each enemy can only be hit by a maximum of one hitscan per attack.
+  - `FLAG47_SPRAYCANHITOWNER (32)`: Hitscan attack will not ignore the actor that fired the projectile, and will be able to hit them.
+  - `FLAG47_SPRAYPASSTHROUGH (64)`: Allows singular hitscan attacks to hit multiple targets, piercing through them.
 
 - **A_PlayerThrust(angle,velocity,pitch,flags,damage)**
   - Launches the player with the following desired velocity.
   - Args:
   -  `angle (fixed)`: Angle (degrees), relative to calling actor's angle
   -  `velocity (fixed)`: Velocity, in direction of angle.
-  -  `pitch (fixed)`: Pitch (degrees), relative to cal
+  -  `pitch (fixed)`: Pitch (degrees), relative to calling actor's angle
   -  `flags (int)`: Flags, see below.
   -  `damage (int)`: Impact damage when colliding with things, like lost souls.
 
@@ -70,21 +77,29 @@
   - `FLAG47_ABSOLUTEXYZ (1)`: The code pointer ignore the angle the monster is facing and instead uses the map's coordinates
   - `FLAG47_OVERRIDETARGET (2)`: Instead overrides the target's momentum
  
-
-
     **NOTE: The key difference is that MomentumOverride replaces the thing's speed, instead of adding to it, like Thrust does.**
 
-  
-- **A_WeaponMeleeAttack47(angle,xmo,ymo,zmo,flags)**
-  - Further parameterized A_WeaponMeleeAttack.
+- **A_LightX(light,relative)**
+  - Parameterized A_Light0/A_Light1/A_Light2
   - Args:
-  -  `damagebase (int)`: Angle (degrees), relative to calling actor's angle
-  -  `damagedice (int)`: X (forward/back) velocity
-  -  `damageoffset (fixed)`: Y (left/right) velocity
-  -  `zmo (fixed)`: Z (up/down) velocity
-  -  `flags (int)`: Flags, see below.
+    - `light (int)`: How high to set the brightness
+    - `relative (int)`: Toggle to increase/decrease brightness by amount instead of replacing brightness by amount.
 
   
+- **A_WeaponMeleeAttack47(damagebase,damagedice,damageoffset,zerkfactor,flags)**
+  - Further parameterized A_WeaponMeleeAttack.
+  - Args:
+  -  `damagebase (int)`: Flat damage to add on top of random damage.
+  -  `damagedice (int)`: Maximum times to multiply attack damage by.
+  -  `damageoffset (int)`: Amount of damage to be multiplied by damagedice.
+  -  `zerkfactor (fixed)`: Berserk damage multiplier; if not set, defaults to 1.0
+  -  `hitsound (int)`: Id of sound to play on successful hit
+  -  `range (fixed)`: Attack range; if not set, defaults to player mobj's melee range property
+  -  `hitstate (int)`: State to enter on successful hit
+  -  `angleoffset (int)`: Angle (degrees), relative to calling actor's angle
+  -  `pitchoffset (fixed)`: Pitch (degrees), relative to calling actor's angle
+  -  `flags (int)`: Flags, see below.
+
    **Flags**
   - `FLAG47_MELEENORANDOMANGLE (1)`: Disables random attack angle.
   - `FLAG47_MELEENOTURN (2)`: Player does not turn to face their target after hitting them.
@@ -159,7 +174,7 @@
   - `FLAG47_THINGBLOCKLOS (4)`: Causes line of sight to be blocked if other things are in the way, instead of only being blocked by walls. 
   - `FLAG47_BLASTFROMTARGET (8)`: Sets the explosion to spawn directly on the target, by default the source of the explosion is the actor's tracer (the flame spawned by A_VileTarget, or the thing spawned by A_SpawnOnTarget).
 
-- **A_SpawnMonster(angle,x_ofs,y_ofs,z_ofs,x_vel,y_vel,z_vel,flags)**
+- **A_SpawnMonster(angle,x_ofs,y_ofs,z_ofs,x_vel,y_vel,z_vel,sound,flags)**
   - Parameterized A_PainAttack.
   - Args:
     - `type (uint)`: Type (dehnum) of actor to spawn
@@ -178,6 +193,35 @@
   - `FLAG47_SPAWNNOFACETARGET (2)`: Actor will not call A_FaceTarget.
   - `FLAG47_SPAWNTHROUGHWALLS (4)`: Ignores checks to see if a wall is between the actor and the location of the spawned thing, which was default behaviour in the original game, but not Boom and it's derivatives.
   - `FLAG47_SPAWNRIP (8)`: Spawned thing is considered a ripper.
+ 
+- **A_SelfRaise(state,sound)**
+  - Resurrects calling actor. If there is an obstacle in the way, it will do nothing.
+  - Args:
+    - `state (int)`: State to jump to (Default is Actor's "Raise" state)
+    - `sound (int)`: Id of sound effect to play.
+   
+- **A_JumpIfBlocked(state,x_ofs,y_ofs,z_ofs,radius,height)**
+  - Checks whether the desired location has enough free space for the actor to move to. If there is, jump to that state, else do nothing.
+  - Args:
+    - `state (int)`: State to jump to
+    - `x_ofs (fixed)`: X (forward/back) position to check relative to calling actor
+    - `y_ofs (fixed)`: Y (left/right) position to check relative to calling actor
+    - `z_ofs (fixed)`: Z (up/down) position to check relative to calling actor
+    - `radius (fixed)`: Radius of area to check, default is calling actor's radius.
+    - `height (fixed)`: Height of area to check, default is calling actor's radius.
+
+- **A_Listen()**
+  - Alternate A_Look that only checks sound and not sight.
+
+
+ 
+### Thing Properties
+
+- **spawnheight** - When thing is spawned into the level, it's z offset will be this many map units off the ground. If it has the SPAWNCEILING flag, it will instead be offset down from the ceiling.
+- **friction** - Sets the thing's default friction to this value, can be replaced by Boom's Friction floors.
+- **damagemod** - Controls damage calculations
+- **damageflat** - Controls damage calculations, by adding this value at the end
+- **damagerecalc** - Repeats damage calculations this many times
  
 ### Counters
 
