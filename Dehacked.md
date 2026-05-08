@@ -217,11 +217,62 @@
  
 ### Thing Properties
 
-- **spawnheight** - When thing is spawned into the level, it's z offset will be this many map units off the ground. If it has the SPAWNCEILING flag, it will instead be offset down from the ceiling.
-- **friction** - Sets the thing's default friction to this value, can be replaced by Boom's Friction floors.
-- **damagemod** - Controls damage calculations
+- **spawnheight** - When thing is spawned into the level, it's z offset will be this many map units off the ground. If it has the SPAWNCEILING flag, it will instead be offset down from the ceiling. ✔
+- **friction** - Sets the thing's default friction to this value, can be replaced by Boom's Friction floors. ✔
+- **damagemod** - Controls damage calculations 
 - **damageflat** - Controls damage calculations, by adding this value at the end
 - **damagerecalc** - Repeats damage calculations this many times
+- **pickuphealth** - Health amount to provide on pickup ✔
+- **pickuparmor** - Armor amount to provide on pickup ✔
+- **pickupammo** - Ammo amount to provide on pickup ✔
+- **maxpickuphealth** - Maximum amount of health the player can have after picking up this item ✔
+- **maxpickuparmor** - Maximum amount of armor the player can have after picking up this item ✔
+- **maxpickupammo** - Maximum amount of ammo the player can have after picking up this item ✔
+- **armorfactor** - How much damage the armor shields, measured in fixed point percent. ✔
+- **ammotype** - Type of ammo to provide on pickup ✔
+- **pickuppower** - Type of Doom powerup to provide on pickup 
+- **poweruptime** - Duration of powerup ✔
+- **pickupsound** - Sound to play on pickup ✔
+- **pickuppaletteintensity** - How many ticks the palette change should last from picking up this item ✔
+- **poweruptype** - Type of FBF47 powerup to provide on pickup ✔
+- **pickupstate** - State thing will enter when it is picked up 
+- **hitscan_group** - Similar to Projectile Group, but for hitscan
+- **impactdamage** - Damage to deal on collision with another object through A_SkullAttack or other related codepointers ✔
+- **impactstate** - State thing will enter when dealing impact damage ✔
+- **ripstate** - State thing will enter when ripping through another object, through impact damage or RIP flag ✔
+- **counters** - Counters (See below) ✔
+- **wallbounciness** - How much force to bounce off of walls, measured in fixed point, multiplied by velocity
+- **floorbounciness** - How much force to bounce off of floors, measured in fixed point, multiplied by velocity
+- **ceilingbounciness** - How much force to bounce off of ceilings, measured in fixed point, multiplied by velocity
+- **maxbouncecount** - Maximum amount of times to bounce before stopping
+- **minmovecount** - Minimum amount of steps to take before being allowed to attack again ✔
+- **maxmovecount** - Maximum amount of steps to take before being allowed to attack again ✔
+- **attackchancefactor** - Multiply chance to attack by this amount (attack chance scales from distance)
+- **addattackchance** - Adds this value to the chance of attacking, a value of 1 is equivalent to 1 map unit
+- **minattackchance** - Minimum chance of attacking when movecount = 0 (minimum 0 = 0%) 
+- **maxattackchance** - Maximum chance of attacking when movecount = 0 (maximum 255 = 100%)
+- **bloodtype** - Type of thing to spawn as a blood particle
+- **lightlevelfactor** - Multiply thing's brightness by this amount, fixed point
+- **addlightlevel** - Adds this value to the brightness of the thing
+- **minlightlevel** - Minimum brightness that thing can be displayed as
+- **maxlightlevel** - Maximum brightness that thing can be displayed as
+- **maxhealth** - Maximum health that thing can have, to prevent healing going too far
+- **gibhealth** - Health to enter gibbing at
+- **invisinaccuracy** - How inaccurate attacks are when shooting something with partial invisibility or other similar powerups.
+- **maxripcount** - Maximum amount of things that can be ripped through before stopping
+- **selfdamagefactor** - Multiply damage dealt to self (e.g. by explosions) by this amount
+- **tranmap** - Displays thing with this tranmap ✔
+- **falldamagefactor** - Fall damage to take per map unit fell
+- **maxfalldamage** - Maximum amount of fall damage to take from 1 fall
+- **minfallheight** - Minimum height to start taking fall damage from. This value is subtracted when calculating fall damage.
+- **wallbouncesound** - Sound to play when bouncing off of walls
+- **floorbouncesound** - Sound to play when bouncing off of floors
+- **ceilingbouncesound** - Sound to play when bouncing off of ceilings
+- **maxtargetrange** - Maximum distance that an enemy can initiate a ranged attack from
+- **mintargetrange** - Minimum distance that an enemy can initiate a ranged attack from
+- **stepheight** - Height in map units that a thing can step up
+- **gravity** - Gravity multiplier
+- **colormap** - Thing colormap
  
 ### Counters
 
