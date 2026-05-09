@@ -13,6 +13,34 @@
   - **ALWAYSPICKUP** - Item can be picked up even if ammo/health/armour is maxed out.
   - **NOMOVECOUNTRESET** - Thing's "movecount" does not reset upon bumping into a wall. "movecount" is the timer that prevents enemies from firing.
   - **TOUCHYDAMAGE** - Thing deals damage upon contact, but does not enter it's death state.
+  - **MF47_PARTICLE** - Thing dies upon contact with geometry, but not other things.
+  - **MF47_THINGTOUCHY** - Thing dies upon contact with other things, but not geometry.
+  - **MF47_SKYDIECEILING** - Thing dies upon contact with sky ceilings.
+  - **MF47_SKYDIEFLOOR** - Thing dies upon contact with sky floors.
+  - **MF47_HITSCANIMMUNE** - Thing is immune to hitscan attacks.
+  - **MF47_PROJECTILEIMMUNE** - Thing is immune to projectiles.
+  - **MF47_SPRAYIMMUNE** - Thing is immune to BFG Sprays.
+  - **MF47_FLOORSTUCK** - Thing can not leave the floor they are standing on.
+  - **MF47_CEILINGSTUCK** - Thing can not leave the ceiling they are standing on.
+  - **MF47_CANTPUSHOBJECTS** - Thing can't push objects with the PUSHABLE flag
+  - **MF47_THINGBOUNCY** - Thing bounces upon contact with another solid thing.
+  - **MF47_DONTCHECKLOS** - Thing does not check for line of sight when deciding whether or not to attack.
+  - **MF47_THINGBLOCKLOS** - Thing's line of sight is blocked when calling A_Look or when deciding to attack, if there is another solid thing in the way.
+  - **MF47_CANTBEAUTOAIMED** - Players and enemies can not autoaim up or down at this thing.
+  - **MF47_CANTAUTOAIM** - Thing can't autoaim at other players or enemies.
+  - **MF47_WALLTOUCHY** - Thing dies immediately when touching a wall.
+  - **MF47_FLOORTOUCHY** - Thing dies immediately when touching a floor.
+  - **MF47_CEILINGTOUCHY** - Thing dies immediately when touching  a ceiling.
+  - **MF47_MONSTER** - Thing is considered a monster, even without COUNTKILL. This means it does not appear on nomonsters and can be killed with TNTEM.
+  - **MF47_DEADSHOOTABLE** - Thing does not disable it's SHOOTABLE flag when killed.
+  - **MF47_CANTKNOCKBACK** - Thing does not cause knockback when attacking.
+  - **MF47_CANTCAUSEPAIN** - Thing can not cause an enemy to enter it's pain state when dealing damage. Note: The enemy will still take damage, just not play the animation.
+  - **MF47_SPAWNONSAMEFLAT** - When spawning other things, it will fail to spawn if the location of that thing is on a different floor texture, or ceiling texture if it has SPAWNONCEILING. This flag is useful for particle effects like rain and snow.
+  - **MF47_SECTORDAMAGEIMMUNE** - Immune to sector based damage like MBF21 kill floors.
+  - **MF47_COPYOWNERMOVEMENT** - Copies movements of it's "owner". If the owner moves left by 4 map units in 1 tic, so will this thing at the same time. Still has seperate control to move on it's own.
+  - **MF47_FLOATONDEATH** - When killed, it does not remove the NOGRAVITY flag and will continue to float mid air.
+  - **MF47_HITSCANREFLECTOR** - When hit with a hitscan attack, the attack is reflected back in a different direction.
+  - **MF47_CANTHITOWNER** - When shooting hitscan attacks or projectiles, they will pass through this thing's "owner".
 
     It is not advised to use internal flags because they may be buggy and will often be toggled on/off by the game itself, regardless of what you do with A_AddFlags / A_RemoveFlags so can not be relied on to stay consistent.
 
